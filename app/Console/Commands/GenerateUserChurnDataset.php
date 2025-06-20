@@ -35,4 +35,4 @@ class GenerateUserChurnDataset extends Command
         $this->info("Dataset dumped at: storage/app/ml_datasets/user_churn_training_dataset.csv");
     }
 }
-return response()->download(storage_path("app/ml_datasets/ml_datasets/{$log->file_path}"));
+//return response()->download(storage_path("app/ml_datasets/ml_datasets/{$log->file_path}"));
