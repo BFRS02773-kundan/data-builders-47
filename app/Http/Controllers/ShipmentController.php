@@ -52,7 +52,11 @@ class ShipmentController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->query('per_page', 10);
-        $shipments = \App\Models\Shipment::orderByDesc('id')->paginate($perPage);
+        $query = \App\Models\Shipment::orderByDesc('id');
+        if ($request->filled('pincode')) {
+            $query->where('destination_pincode', $request->query('pincode'));
+        }
+        $shipments = $query->paginate($perPage);
         return response()->json([
             'shipments' => $shipments->items(),
             'meta' => [

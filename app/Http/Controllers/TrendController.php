@@ -40,6 +40,7 @@ class TrendController extends Controller
             $row->success_rate = $row->total ? $row->success_count / $row->total : 0;
             $row->rto_rate = $row->total ? $row->rto_count / $row->total : 0;
             if ($courierId) {
+                $row->courier_id = $courierId;
                 $row->courier = Courier::find($courierId);
             } else {
                 $row->courier_id = $row->courier_id;
