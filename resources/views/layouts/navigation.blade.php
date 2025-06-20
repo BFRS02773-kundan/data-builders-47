@@ -18,6 +18,9 @@
                     <x-nav-link :href="route('dataset.index')" :active="request()->routeIs('dataset.index')">
                         {{ __('Dataset Builder') }}
                     </x-nav-link>
+                    <x-nav-link :href="url('/dashboard')" :active="request()->is('dashboard')">
+                        {{ __('Courier Dashboard') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -75,6 +78,9 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('dataset.index')" :active="request()->routeIs('dataset.index')">
                 {{ __('Dataset Builder') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="url('/dashboard')" :active="request()->is('dashboard')">
+                {{ __('Courier Dashboard') }}
             </x-responsive-nav-link>
         </div>
 

@@ -19,7 +19,18 @@ class DummyDataSeeder extends Seeder
      */
     public function run(): void
     {
-        $couriers = Courier::all();
+        // Create 5 distinct couriers
+        $courierNames = [
+            'Delhivery', 'Bluedart', 'Ecom Express', 'XpressBees', 'Shadowfax'
+        ];
+        $couriers = collect();
+        foreach ($courierNames as $idx => $name) {
+            $couriers->push(Courier::create([
+                'name' => $name,
+                'api_credentials' => json_encode(['api_key' => strtolower(str_replace(' ', '', $name)) . '123']),
+            ]));
+        }
+
         $pincodes = ['110001', '560001', '400001'];
         $days = 30;
 
@@ -28,20 +39,20 @@ class DummyDataSeeder extends Seeder
             Order::factory()->create();
         }
 
-        // Create performance and rate data for each courier and pincode
-        foreach ($couriers as $courier) {
+        // Assign distinct performance and rate data for each courier and pincode
+        foreach ($couriers as $idx => $courier) {
             foreach ($pincodes as $pincode) {
                 CourierPerformance::create([
                     'courier_id' => $courier->id,
                     'pincode' => $pincode,
-                    'avg_delivery_speed' => rand(1, 5),
-                    'rto_rate' => rand(1, 20) / 100,
-                    'success_rate' => rand(80, 99) / 100,
+                    'avg_delivery_speed' => 2 + $idx, // 2, 3, 4, 5, 6
+                    'rto_rate' => 0.05 + ($idx * 0.02), // 0.05, 0.07, 0.09, 0.11, 0.13
+                    'success_rate' => 0.95 - ($idx * 0.02), // 0.95, 0.93, 0.91, 0.89, 0.87
                 ]);
                 CourierRate::create([
                     'courier_id' => $courier->id,
                     'pincode' => $pincode,
-                    'rate' => rand(30, 100),
+                    'rate' => 50 + ($idx * 10), // 50, 60, 70, 80, 90
                     'last_updated' => now(),
                 ]);
             }

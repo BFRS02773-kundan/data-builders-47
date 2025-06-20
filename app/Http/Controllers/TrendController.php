@@ -1,56 +1,19 @@
 <?php
 
-namespace App\Models;
+namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\CourierPerformance;
-use App\Models\CourierRate;
-use App\Models\Shipment;
-use App\Models\DeliveryResult;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use App\Models\Courier;
 
-class Courier extends Model
+class TrendController extends Controller
 {
-    use HasFactory;
-
-    protected $fillable = [
-        'name',
-        'api_credentials',
-    ];
-
-    protected $casts = [
-        'api_credentials' => 'array',
-    ];
-
-    public function performances()
-    {
-        return $this->hasMany(CourierPerformance::class);
-    }
-
-    public function rates()
-    {
-        return $this->hasMany(CourierRate::class);
-    }
-
-    public function shipments()
-    {
-        return $this->hasMany(Shipment::class);
-    }
-
-    public function deliveryResults()
-    {
-        return $this->hasMany(DeliveryResult::class);
-    }
-
     public function last30DaysTrends(Request $request)
     {
         $startDate = Carbon::now()->subDays(29)->startOfDay();
         $endDate = Carbon::now()->endOfDay();
         $courierId = $request->query('courier_id');
-        $bestSuccessRate = $request->query('best_success_rate');
 
         $query = DB::table('delivery_results')
             ->selectRaw('DATE(delivered_at) as date')
@@ -77,22 +40,12 @@ class Courier extends Model
             $row->success_rate = $row->total ? $row->success_count / $row->total : 0;
             $row->rto_rate = $row->total ? $row->rto_count / $row->total : 0;
             if ($courierId) {
-                $row->courier = \App\Models\Courier::find($courierId);
+                $row->courier = Courier::find($courierId);
             } else {
                 $row->courier_id = $row->courier_id;
             }
             return $row;
         });
-
-        // If best_success_rate is requested, filter to only the best per day
-        if (!$courierId && $request->query('best_success_rate')) {
-            $trends = $trends
-                ->groupBy('date')
-                ->map(function ($dayRows) {
-                    return $dayRows->sortByDesc('success_rate')->first();
-                })
-                ->values();
-        }
 
         return response()->json($trends);
     }

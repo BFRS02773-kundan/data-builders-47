@@ -48,9 +48,19 @@ class ShipmentController extends Controller
         return response()->json(['delivery_result' => $result]);
     }
 
-    // List all shipments
-    public function index()
+    // List all shipments with pagination
+    public function index(Request $request)
     {
-        return response()->json(['shipments' => \App\Models\Shipment::all()]);
+        $perPage = $request->query('per_page', 10);
+        $shipments = \App\Models\Shipment::orderByDesc('id')->paginate($perPage);
+        return response()->json([
+            'shipments' => $shipments->items(),
+            'meta' => [
+                'current_page' => $shipments->currentPage(),
+                'last_page' => $shipments->lastPage(),
+                'per_page' => $shipments->perPage(),
+                'total' => $shipments->total(),
+            ]
+        ]);
     }
 }
